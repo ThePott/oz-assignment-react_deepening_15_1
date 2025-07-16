@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useKanbanState } from '../hooks/hooks';
 import BoardDetailModal from './BoardDetailModal';
 
 const typeToKorean = (type) => {
@@ -21,19 +22,20 @@ const typeToKorean = (type) => {
 //filteredData에 할당된 data를 필터링 하세요.
 //이후 Recoil의 useRecoilValue를 이용하여 Recoil의 상태를 가져오도록 수정합니다.
 
-const Boards = ({ type, data }) => {
-  const filteredData = data;
-  const [item, setItem] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
+const Boards = ({ type }) => {
+  const { kanban: data } = useKanbanState()
+  const [modalItem, setModalItem] = useState(null);
+
+
+
+  const filteredData = data.filter(el => el.type === type)
 
   const handleModalOpen = (item) => {
-    setItem(item);
-    setIsOpen(true);
+    setModalItem(item);
   };
 
   const handleModalClose = () => {
-    setItem(null);
-    setIsOpen(false);
+    setModalItem(null);
   };
 
   return (
@@ -42,6 +44,7 @@ const Boards = ({ type, data }) => {
         <p className="text-lg font-semibold">{typeToKorean(type)}</p>
       </div>
       <div className="flex flex-col gap-2 p-4">
+
         {filteredData.map((item) => (
           <div
             onClick={() => handleModalOpen(item)}
@@ -57,8 +60,9 @@ const Boards = ({ type, data }) => {
             <p className="text-sm text-gray-500">{item.created_at}</p>
           </div>
         ))}
+        
       </div>
-      {isOpen && <BoardDetailModal onClose={handleModalClose} item={item} />}
+      {modalItem && <BoardDetailModal onClose={handleModalClose} item={modalItem} />}
     </div>
   );
 };
